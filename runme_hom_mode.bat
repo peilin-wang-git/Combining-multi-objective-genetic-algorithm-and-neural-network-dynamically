@@ -1,0 +1,1 @@
+python.exe .\base.py -p ".\project\HOM_Mode"
