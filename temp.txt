@@ -1,0 +1,5 @@
+200
+4
+outlimit
+50
+.//my_subject_kbann//result22080402_check21121301_1000init_k04_NoPreference_ChooseNum100_50_twoparents//picture//
