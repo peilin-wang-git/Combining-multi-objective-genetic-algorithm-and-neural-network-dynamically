@@ -1,0 +1,11 @@
+Req 241.5
+Rt1 70
+Rt2 70 
+Leq 260
+Lt1 200
+Lt2 200
+Gap 195
+nose 20
+r1 10
+r3 5
+nmodes 1

@@ -1,0 +1,7 @@
+Rtube 50 51 1
+R 230
+L 260 
+Ltube 400
+fmin 400
+fmax 1200
+nmodes 6
