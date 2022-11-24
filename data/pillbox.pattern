@@ -1,0 +1,151 @@
+
+
+'"Ver 20201026"
+Sub Start	
+	outFullDir=resultDir & currentResultName &"\"
+	compute()	
+	postProcess()
+	SaveAs (outFullDir & cstType &".cst", False)
+End Sub
+Sub prepareEnv
+End Sub
+Sub compute
+	EigenmodeSolver.Start
+End Sub
+Sub setEnv
+	With Units
+     .Geometry ("mm")
+     .Frequency ("mhz")
+     .Time ("ns")
+     .TemperatureUnit ("kelvin")
+	End With
+	With Background
+     .Type "pec"
+	End With
+End Sub
+Sub setBoundary
+	With Boundary
+     .Xmin ("electric")
+     .Xmax ("electric")
+     .Ymin ("electric")
+     .Ymax ("electric")
+     .Zmin ("electric")
+     .Zmax ("electric")
+     .Xsymmetry ("none")
+     .Ysymmetry ("none")
+     .Zsymmetry ("none")
+     .ApplyInAllDirections (False)
+     .XminPotential ""
+     .XmaxPotential ""
+     .YminPotential ""
+     .YmaxPotential ""
+     .ZminPotential ""
+     .ZmaxPotential ""
+	End With
+End Sub
+Sub setSolver (ufmin,ufmax,unmodes)
+	With Solver
+		.FrequencyRange(ufmin,ufmax)
+	End With
+	With EigenmodeSolver
+		.Reset
+		.SetNumberOfModes(unmodes)
+		.SetMeshAdaptationTet(False)
+		.SetFrequencyTarget(True,ufmin*1.2)
+		.Start
+	End With
+End Sub
+Sub setAdtSolver (ufmin,ufmax,unmodes,maxfreqvar)
+	With Solver
+		.FrequencyRange(ufmin,ufmax)
+		.AKSMaximumDF(maxfreqvar)
+	End With
+	With EigenmodeSolver
+		.Reset
+		.SetNumberOfModes(unmodes)
+		.SetMeshAdaptationTet(True)		
+		.SetFrequencyTarget(True,ufmin*1.2)
+		.Start
+	End With
+End Sub
+Sub postProcess
+	Dim fullPath As String
+	fullPath = outFullDir
+	Dim outmode,i As Integer
+	Dim st,ed As Double
+	st=Timer
+	outmode = RestoreDoubleParameter("nmodes")
+	For i=1 to outmode
+		SelectTreeItem("2D/3D Results\Modes\Mode "& i &"\e")
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"EField.txt")
+			.Mode ("FixedNumber")
+			.StepX (12)
+			.StepY (12)
+			.StepZ (8)
+			.Execute
+		End With
+
+		SelectTreeItem("2D/3D Results\Modes\Mode "& i &"\h")
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"HField.txt")
+			.Mode ("FixedNumber")
+			.StepX (12)
+			.StepY (12)
+			.StepZ (8)
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\Frequency (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"Frequency.txt")
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\Q-Factor (Perturbation) (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"Q-Factor.txt")
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\R over Q beta=1 (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"R_Q.txt")
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\Shunt Impedance (Pertubation) beta=1 (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"ShuntImpedance.txt")
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\Voltage beta=1 (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"Voltage.txt")
+			.Execute
+		End With
+		SelectTreeItem("Tables\0D Results\Total Loss (Pert., Aver.) (Multiple Modes)\Mode " & i)
+		With ASCIIExport
+			.Reset
+			.FileName (fullPath & "Mode"& i &"TotalLoss.txt")
+			.Execute
+		End With
+	Next i
+	SelectTreeItem("Tables\1D Results\e_Abs (Z)")
+	With ASCIIExport
+		.Reset
+		.FileName (fullPath & "e_Abs.txt")
+		.Execute
+	End With
+	SelectTreeItem("Tables\1D Results\TotalQ_Eigenmode_All")
+	With ASCIIExport
+		.Reset
+		.FileName (fullPath & "TotalQEigMAll.txt")
+		.Execute
+	End With
+	ed=Timer
+	postProcessTime=ed-st
+End Sub
